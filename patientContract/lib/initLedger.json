@@ -1,0 +1,34 @@
+[
+    {
+        "patientId":"1", 
+        "firstName": "Monica",
+        "lastName": "Latte",
+        "age": "50",
+        "phoneNumber": "+4912345678",
+        "emergPhoneNumber": "+4912345678",
+        "address": "Albrechtstrasse 71, 86383 Stadtbergen",
+        "bloodGroup": "O+",
+        "allergies": "No",
+        "symptoms": "Cholesterol, Total 250 mg/dl",
+        "diagnosis": "High Cholesterol",
+        "treatment": "Vasolip 10 mg everyday",
+        "followUp": "6 Months",
+        "updateTimestamp":"14 May 2022 10:30 am"
+    },
+    {
+        "patientId":"2",
+        "firstName": "Max",
+        "lastName": "Mustermann",
+        "age": "60",
+        "phoneNumber": "+491764561111",
+        "emergPhoneNumber": "+491764561113",
+        "address": "Mainzer landstrasse 134, 60326 Frankfurt am Main",
+        "bloodGroup": "B+",
+        "allergies": "No",
+        "symptoms": "Heart Burn, shortness of breath, Acidity",
+        "diagnosis": "Esophagitis",
+        "treatment": "omeprazole 40 mg for 10 days before food",
+        "followUp": "2 Weeks",
+        "updateTimestamp":"14 May 2022 10:30 am"
+    }
+]

@@ -1,0 +1,183 @@
+/**
+ * @author Varsha Kamath
+ * @email varsha.kamath@stud.fra-uas.de
+ * @create date 2021-01-23 21:50:38
+ * @modify date 2021-01-30 19:52:41
+ * @desc [Primary Smartcontract to initiate ledger with patient details]
+ */
+/*
+ * SPDX-License-Identifier: Apache-2.0
+ */
+'use strict';
+
+const { Contract } = require('fabric-contract-api');
+let initPatients = require('./initLedger.json');
+
+class PatientContract extends Contract {
+
+    async initLedger(ctx) {
+        console.info('============= START : Initialize Ledger ===========');
+        for (let i = 0; i < initPatients.length; i++) {
+            //initPatients[i].docType = 'patient';
+            await ctx.stub.putState(initPatients[i].patientId, Buffer.from(JSON.stringify(initPatients[i])));
+            console.info('Added <--> ', initPatients[i].patientId);
+        }
+        console.info('============= END : Initialize Ledger ===========');
+    }
+
+    //Read patient details based on patientId
+    async readPatient(ctx, patientId) {
+        const buffer = await ctx.stub.getState(patientId);
+        if (!(!!buffer && buffer.length > 0)) {
+            throw new Error(`The patient ${patientId} does not exist`);
+        }
+
+        let asset = JSON.parse(buffer.toString());
+        /*asset = ({
+            patientId: patientId,
+            firstName: asset.firstName,
+            lastName: asset.lastName,
+            age: asset.age,
+            phoneNumber: asset.phoneNumber,
+            emergPhoneNumber: asset.emergPhoneNumber,
+            address: asset.address,
+            bloodGroup: asset.bloodGroup,
+            allergies: asset.allergies,
+            symptoms: asset.symptoms,
+            diagnosis: asset.diagnosis,
+            treatment: asset.treatment,
+            followUp: asset.followUp,
+            permissionGranted: asset.permissionGranted,
+            password: asset.password,
+            pwdTemp: asset.pwdTemp
+        });*/
+        return asset;
+    }
+
+    async createPatient(ctx, 
+        patientId, 
+        firstName, 
+        lastName, 
+        age,
+        phoneNumber, 
+        emergPhoneNumber, 
+        address, 
+        bloodGroup, 
+        allergies,
+        symptoms,
+        diagnosis,
+        treatment,
+        followUp) {
+
+        console.info('============= START : Create Patient ===========');
+
+        const newPatient = {
+            patientId, 
+            firstName, 
+            lastName, 
+            age,
+            phoneNumber, 
+            emergPhoneNumber, 
+            address, 
+            bloodGroup, 
+            allergies,
+            symptoms,
+            diagnosis,
+            treatment,
+            followUp,
+            updateTimestamp:"30 April 2021 10:40 pm"
+        }
+
+
+        /*const exists = await this.patientExists(ctx, newPatient.patientId);
+        if (exists) {
+            throw new Error(`The patient ${newPatient.patientId} already exists`);
+        }*/
+
+
+	
+        const buffer = Buffer.from(JSON.stringify(newPatient));
+        await ctx.stub.putState(newPatient.patientId, buffer);
+        console.info('============= END : Create Patient ===========');
+    }
+
+   
+    /*async getQueryResultForQueryString(ctx, queryString) {
+        let resultsIterator = await ctx.stub.getQueryResult(queryString);
+        console.info('getQueryResultForQueryString <--> ', resultsIterator);
+        let results = await this.getAllPatientResults(resultsIterator, false);
+        return JSON.stringify(results);
+    }
+
+    async getAllPatientResults(iterator, isHistory) {
+         let allResults = [];
+        while (true) {
+            let res = await iterator.next();
+
+            if (res.value && res.value.value.toString()) {
+                let jsonRes = {};
+                console.log(res.value.value.toString('utf8'));
+
+                if (isHistory && isHistory === true) {
+                    jsonRes.Timestamp = res.value.timestamp;
+                }
+                jsonRes.Key = res.value.key;
+
+                try {
+                    jsonRes.Record = JSON.parse(res.value.value.toString('utf8'));
+                } catch (err) {
+                    console.log(err);
+                    jsonRes.Record = res.value.value.toString('utf8');
+                }
+                allResults.push(jsonRes);
+            }
+            if (res.done) {
+                console.log('end of data');
+                await iterator.close();
+                console.info(allResults);
+                return allResults;
+            }
+        }
+    }*/
+
+    async updatePatientMedicalDetails(ctx, patientId,allergies, symptoms, diagnosis, treatment, followUp) {
+        args = JSON.parse(args);
+        let isDataChanged = false;
+        let patientId = patientId;
+	let newAllergies = allergies;
+        let newSymptoms = symptoms;
+        let newDiagnosis = diagnosis;
+        let newTreatment = treatment;
+        let newFollowUp = followUp;
+
+        const patient = await this.readPatient(ctx, patientId);
+
+	
+        if (newSymptoms !== null && newSymptoms !== '' && patient.symptoms !== newSymptoms) {
+            patient.symptoms = newSymptoms;
+            isDataChanged = true;
+        }
+
+        if (newDiagnosis !== null && newDiagnosis !== '' && patient.diagnosis !== newDiagnosis) {
+            patient.diagnosis = newDiagnosis;
+            isDataChanged = true;
+        }
+
+        if (newTreatment !== null && newTreatment !== '' && patient.treatment !== newTreatment) {
+            patient.treatment = newTreatment;
+            isDataChanged = true;
+        }
+
+        if (newFollowUp !== null && newFollowUp !== '' && patient.followUp !== newFollowUp) {
+            patient.followUp = newFollowUp;
+            isDataChanged = true;
+        }
+
+        if (isDataChanged === false) return;
+
+        patient.updateTimestamp = 'current date'
+        const buffer = Buffer.from(JSON.stringify(patient));
+        await ctx.stub.putState(patientId, buffer);
+    }
+}
+module.exports = PatientContract;
